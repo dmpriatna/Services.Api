@@ -19,7 +19,7 @@ namespace OpticalCharacterRecognition.Api.Services
             Agent.DeliveryMethod = SmtpDeliveryMethod.Network;
             Agent.EnableSsl = true;
             Agent.UseDefaultCredentials = false;
-            Agent.Credentials = new NetworkCredential("zain.hernadi@fellow.lpkia.ac.id", "zain261914");
+            Agent.Credentials = new NetworkCredential("apps.info@go-logs.com", "oYP24[zf=I2O");
         }
 
         private SmtpClient Agent { get; }
