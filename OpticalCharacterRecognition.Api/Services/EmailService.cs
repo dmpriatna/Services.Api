@@ -10,11 +10,6 @@ namespace OpticalCharacterRecognition.Api.Services
     {
         public EmailService()
         {
-            //Agent = new SmtpClient("smtp-relay.sendinblue.com", 587);
-            //Agent.DeliveryMethod = SmtpDeliveryMethod.Network;
-            //Agent.EnableSsl = true;
-            //Agent.UseDefaultCredentials = false;
-            //Agent.Credentials = new NetworkCredential("dedemaulanapriatna@gmail.com", "BYrqA2RwG3ZTCdDy");
             Agent = new SmtpClient("smtp.gmail.com", 587);
             Agent.DeliveryMethod = SmtpDeliveryMethod.Network;
             Agent.EnableSsl = true;
@@ -27,7 +22,6 @@ namespace OpticalCharacterRecognition.Api.Services
         public void Send(List<string> to, string subject, string body)
         {
             var sender = new MailAddress("noreply@go-logs.com", "go-logs");
-            //var receiver = new MailAddress(to);
             var message = new MailMessage();
 
             foreach (var receiver in to)
@@ -46,7 +40,7 @@ namespace OpticalCharacterRecognition.Api.Services
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
+                throw e;
             }
         }
     }

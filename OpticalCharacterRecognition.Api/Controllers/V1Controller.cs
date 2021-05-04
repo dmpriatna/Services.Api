@@ -7,27 +7,73 @@ namespace OpticalCharacterRecognition.Api.Controllers
     [Route("[controller]/[action]")]
     public class V1Controller : ControllerBase
     {
-        [HttpPost]
-        public Models.BillOfLadingModel ReadDocument(IFormFile file)
+        public V1Controller()
         {
-            var rs = new Services.RecognitionService();
-            return rs.Read(file);
+            ES = new Services.EmailService();
+            RS = new Services.RecognitionService();
+            SS = new Services.StorageService();
+        }
+
+        private Services.EmailService ES { get; }
+
+        private Services.RecognitionService RS { get; }
+
+        private Services.StorageService SS { get; }
+
+        [HttpPost]
+        public IActionResult ReadDocument(IFormFile file)
+        {
+            try
+            {
+                var result = RS.Read(file);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, e);
+            }
         }
 
         [HttpPost]
         public IActionResult SendMail([FromBody] Models.EmailModel model)
         {
-            var es = new Services.EmailService();
-            es.Send(model.To, model.Subject, model.Body);
-            return Ok();
+            try
+            {
+                ES.Send(model.To, model.Subject, model.Body);
+                return Ok();
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, e);
+            }
         }
 
         [HttpPost]
         public IActionResult UploadFile(IFormFile file)
         {
-            var ss = new Services.StorageService();
-            ss.Upload(file);
-            return Ok();
+            try
+            {
+                var result = SS.Upload(file);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                return StatusCode(500, e);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult DownloadFile(string fileName)
+        {
+            try
+            {
+                var result = SS.Download(fileName);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

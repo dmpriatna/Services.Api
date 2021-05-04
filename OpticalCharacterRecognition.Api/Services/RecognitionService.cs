@@ -6,13 +6,9 @@ namespace OpticalCharacterRecognition.Api.Services
 {
     public class RecognitionService
     {
-        public BillOfLadingModel Read(IFormFile file)
+        public DocumentModel Read(IFormFile file)
         {
-            var result = new BillOfLadingModel();
-            var ss = new StorageService();
             var it = new IronTesseract();
-
-            //ss.Upload(file);
 
             try
             {
@@ -22,15 +18,16 @@ namespace OpticalCharacterRecognition.Api.Services
                     var oRes = it.Read(input);
                     var words = oRes.Words;
 
-                    result.Transporter.BLNumber = words.GetBLNumber();
+                    return new DocumentModel
+                    {
+                        BLNumber = words.GetBLNumber()
+                    };
                 }
             }
             catch (System.Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
+                throw e;
             }
-
-            return result;
         }
     }
 }

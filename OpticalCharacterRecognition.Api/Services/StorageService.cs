@@ -10,20 +10,39 @@ namespace OpticalCharacterRecognition.Api.Services
         {
             var path = System.IO.Path.Combine(Environment.CurrentDirectory, "key.json");
             var gc = GoogleCredential.FromFile(path);
+
+            Bucket = "go-logs-304513.appspot.com";
             Instance = StorageClient.Create(gc);
+            Signer = UrlSigner.FromServiceAccountPath(path);
         }
+
+        private string Bucket { get; }
 
         private StorageClient Instance { get; }
 
-        public void Upload(Microsoft.AspNetCore.Http.IFormFile file)
+        private UrlSigner Signer { get; }
+
+        public Google.Apis.Storage.v1.Data.Object Upload(Microsoft.AspNetCore.Http.IFormFile file)
         {
             try
             {
-                Instance.UploadObject("go-logs-304513.appspot.com", file.FileName, file.ContentType, file.OpenReadStream());
+                return Instance.UploadObject(Bucket, file.FileName, file.ContentType, file.OpenReadStream());
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(e);
+                throw e;
+            }
+        }
+
+        public string Download(string objectName)
+        {
+            try
+            {
+                return Signer.Sign(Bucket, objectName, TimeSpan.FromHours(1), System.Net.Http.HttpMethod.Get);
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }
