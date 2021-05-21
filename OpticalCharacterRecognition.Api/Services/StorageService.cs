@@ -12,13 +12,13 @@ namespace OpticalCharacterRecognition.Api.Services
             var gc = GoogleCredential.FromFile(path);
 
             Bucket = "go-logs-304513.appspot.com";
-            Instance = StorageClient.Create(gc);
+            Client = StorageClient.Create(gc);
             Signer = UrlSigner.FromServiceAccountPath(path);
         }
 
         private string Bucket { get; }
 
-        private StorageClient Instance { get; }
+        private StorageClient Client { get; }
 
         private UrlSigner Signer { get; }
 
@@ -26,7 +26,7 @@ namespace OpticalCharacterRecognition.Api.Services
         {
             try
             {
-                return Instance.UploadObject(Bucket, file.FileName, file.ContentType, file.OpenReadStream());
+                return Client.UploadObject(Bucket, file.FileName, file.ContentType, file.OpenReadStream());
             }
             catch (Exception e)
             {

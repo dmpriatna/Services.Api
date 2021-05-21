@@ -16,11 +16,13 @@ namespace OpticalCharacterRecognition.Api.Services
                 {
                     input.AddPdf(file.OpenReadStream());
                     var oRes = it.Read(input);
-                    var words = oRes.Words;
+                    var lines = oRes.Lines;
 
                     return new DocumentModel
                     {
-                        BLNumber = words.GetBLNumber()
+                        // Amount = lines.GetAmount(),
+                        BLNumber = lines.GetBLNumber(),
+                        DONumber = lines.GetDONumber()
                     };
                 }
             }

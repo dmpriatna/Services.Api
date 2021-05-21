@@ -7,17 +7,68 @@ namespace OpticalCharacterRecognition.Api
 {
     public static partial class HelperExtensions
     {
-        public static string GetBLNumber(this IronOcr.OcrResult.Word[] source)
+        private static string GetValue(this IronOcr.OcrResult.Line[] lines, string[] keys)
         {
-            var keys = new string[] { "bl", "bill", "b/l" };
-            var obx = source.OrderBy(ob => ob.X);
-            var oby = source.OrderBy(ob => ob.Y);
-            var res = source.FirstOrDefault(fod => keys.Contains(fod.Text.ToLowerInvariant()));
+            IronOcr.OcrResult.Line line = null;
+            string key = string.Empty;
 
-            var lookX = obx.FirstOrDefault(fod => fod.X > res.X);
-            var lookY = oby.FirstOrDefault(fod => fod.Y > res.Y);
+            Parallel.ForEach(lines, eachLine => {
+                Parallel.ForEach(keys, eachKey =>
+                {
+                    if (eachLine.Text.ToLowerInvariant().Contains(eachKey))
+                    {
+                        key = eachKey;
+                        line = eachLine;
+                    }
+                });
+            });
 
-            return lookX.Text;
+            if (line != null)
+            {
+                var start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
+                var result = line.Text.Substring(start).Trim();
+                
+                if (string.IsNullOrEmpty(result))
+                {
+                    var index = Array.IndexOf(lines, line);
+                    var next = lines[index + 1];
+                    return next.Text.Substring(next.Text.LastIndexOfAny(new char[] { ' ' }));
+                }
+                
+                return result;
+            }
+
+            return null;
+        }
+
+        public static string GetBLNumber(this IronOcr.OcrResult.Line[] lines)
+        {
+            var keys = new string[] {
+                //"no:",
+                "bl no.",
+                "b/l no.",
+                "b.l. no.",
+                "bill of lading no.",
+                "bill of lading no.:"
+            };
+            return lines.GetValue(keys);
+        }
+
+        public static string GetAmount(this IronOcr.OcrResult.Line[] lines)
+        {
+            var keys = new string[]{
+
+            };
+            return lines.GetValue(keys);
+        }
+
+
+        public static string GetDONumber(this IronOcr.OcrResult.Line[] lines)
+        {
+            var keys = new string[]{
+
+            };
+            return lines.GetValue(keys);
         }
     }
 }
