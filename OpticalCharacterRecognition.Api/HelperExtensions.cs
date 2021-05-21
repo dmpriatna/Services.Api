@@ -9,8 +9,9 @@ namespace OpticalCharacterRecognition.Api
     {
         private static string GetValue(this IronOcr.OcrResult.Line[] lines, string[] keys)
         {
-            IronOcr.OcrResult.Line line = null;
-            string key = string.Empty;
+            IronOcr.OcrResult.Line line = null, next = null;
+            string key = string.Empty, result = null;
+            int index = 0, start = 0;
 
             Parallel.ForEach(lines, eachLine => {
                 Parallel.ForEach(keys, eachKey =>
@@ -25,14 +26,16 @@ namespace OpticalCharacterRecognition.Api
 
             if (line != null)
             {
-                var start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
-                var result = line.Text.Substring(start).Trim();
+                start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
+                result = line.Text.Substring(start).Trim();
                 
                 if (string.IsNullOrEmpty(result))
                 {
-                    var index = Array.IndexOf(lines, line);
-                    var next = lines[index + 1];
-                    return next.Text.Substring(next.Text.LastIndexOfAny(new char[] { ' ' }));
+                    index = Array.IndexOf(lines, line);
+                    next = lines[index + 1];
+                    start = next.Text.LastIndexOfAny(new char[] { ' ' });
+                    start = start > 0 ? start : 0;
+                    return next.Text.Substring(start);
                 }
                 
                 return result;
@@ -47,6 +50,7 @@ namespace OpticalCharacterRecognition.Api
                 //"no:",
                 "bl no.",
                 "b/l no.",
+                "b/l no.:",
                 "b.l. no.",
                 "bill of lading no.",
                 "bill of lading no.:"
