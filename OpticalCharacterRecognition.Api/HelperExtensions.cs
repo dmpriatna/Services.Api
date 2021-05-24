@@ -7,26 +7,37 @@ namespace OpticalCharacterRecognition.Api
 {
     public static partial class HelperExtensions
     {
-        private static string GetValue(this IronOcr.OcrResult.Line[] lines, string[] keys)
+        private static IronOcr.OcrResult.Line GetLine(this IronOcr.OcrResult.Line[] lines, string[] keys, out string key)
         {
-            IronOcr.OcrResult.Line line = null, next = null;
-            string key = string.Empty, result = null;
-            int index = 0, start = 0;
-
+            IronOcr.OcrResult.Line line = null;
+            string outKey = null;
             Parallel.ForEach(lines, eachLine => {
                 Parallel.ForEach(keys, eachKey =>
                 {
                     if (eachLine.Text.ToLowerInvariant().Contains(eachKey))
                     {
-                        key = eachKey;
+                        outKey = eachKey;
                         line = eachLine;
                     }
                 });
             });
+            key = outKey;
+            return line;
+        }
+        
+        private static string GetValue(this IronOcr.OcrResult.Line[] lines, string[] keys, int type = 0)
+        {
+            IronOcr.OcrResult.Line next = null;
+            string result = null;
+            int index = 0, start = 0;
+
+            var line = lines.GetLine(keys, out string key);
 
             if (line != null)
             {
                 start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
+                if (type == 1)
+                    start = line.Text.LastIndexOfAny(new char[] { ' ' });
                 result = line.Text.Substring(start).Trim();
                 
                 if (string.IsNullOrEmpty(result))
@@ -61,18 +72,31 @@ namespace OpticalCharacterRecognition.Api
         public static string GetAmount(this IronOcr.OcrResult.Line[] lines)
         {
             var keys = new string[]{
-
+                "total"
             };
-            return lines.GetValue(keys);
+            return lines.GetValue(keys, 1);
         }
-
 
         public static string GetDONumber(this IronOcr.OcrResult.Line[] lines)
         {
             var keys = new string[]{
-
+                "invoice number"
             };
-            return lines.GetValue(keys);
+
+            var line = lines.GetLine(keys, out string key);
+
+            if (line != null)
+            {
+                var xRange = Enumerable.Range(line.X - 4, 4).ToList();
+                xRange.AddRange(Enumerable.Range(line.X, 5));
+                var keyWord = line.Words
+                    .FirstOrDefault(fod => fod.Text.ToLowerInvariant() == "invoice");
+                var valWord = line.Block.Words
+                    .FirstOrDefault(fod => xRange.Contains(fod.X) && fod.Y > line.Y);
+                return valWord.Text;
+            }
+
+            return null;
         }
     }
 }

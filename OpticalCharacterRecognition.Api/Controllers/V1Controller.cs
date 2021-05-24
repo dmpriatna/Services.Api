@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace OpticalCharacterRecognition.Api.Controllers
 {
@@ -21,16 +22,44 @@ namespace OpticalCharacterRecognition.Api.Controllers
         private Services.StorageService SS { get; }
 
         [HttpPost]
-        public IActionResult ReadDocument(IFormFile file)
+        public async Task<IActionResult> ReadBL(IFormFile file)
         {
             try
             {
-                var result = RS.Read(file);
+                var result = await RS.ReadBL(file);
                 return Ok(result);
             }
             catch (System.Exception e)
             {
-                return StatusCode(500, e);
+                throw e;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReadDO(IFormFile file)
+        {
+            try
+            {
+                var result = await RS.ReadDO(file);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReadAmount(IFormFile file)
+        {
+            try
+            {
+                var result = await RS.ReadAmount(file);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                throw e;
             }
         }
 
@@ -72,7 +101,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
             catch (System.Exception e)
             {
-                throw e;
+                return StatusCode(500, e);
             }
         }
     }
