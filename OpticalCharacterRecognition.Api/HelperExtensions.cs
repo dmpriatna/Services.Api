@@ -87,12 +87,12 @@ namespace OpticalCharacterRecognition.Api
 
             if (line != null)
             {
-                var xRange = Enumerable.Range(line.X - 4, 4).ToList();
-                xRange.AddRange(Enumerable.Range(line.X, 5));
                 var keyWord = line.Words
                     .FirstOrDefault(fod => fod.Text.ToLowerInvariant() == "invoice");
+                var xRange = Enumerable.Range(keyWord.X - 4, 4).ToList();
+                xRange.AddRange(Enumerable.Range(keyWord.X, 5));
                 var valWord = line.Block.Words
-                    .FirstOrDefault(fod => xRange.Contains(fod.X) && fod.Y > line.Y);
+                    .FirstOrDefault(fod => xRange.Contains(fod.X) && fod.Y > keyWord.Y);
                 return valWord.Text;
             }
 
