@@ -23,7 +23,7 @@ namespace OpticalCharacterRecognition.Api.Models
         public string BLNumber { get; set; }
     }
 
-    public class DeliveryModel
+    public class DeliveryModel : BillModel
     {
         public string DONumber { get; set; }
     }

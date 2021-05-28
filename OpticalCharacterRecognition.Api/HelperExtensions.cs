@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IronOcr;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,9 +8,9 @@ namespace OpticalCharacterRecognition.Api
 {
     public static partial class HelperExtensions
     {
-        private static IronOcr.OcrResult.Line GetLine(this IronOcr.OcrResult.Line[] lines, string[] keys, out string key)
+        private static OcrResult.Line GetLine(this OcrResult.Line[] lines, string[] keys, out string key)
         {
-            IronOcr.OcrResult.Line line = null;
+            OcrResult.Line line = null;
             string outKey = null;
             Parallel.ForEach(lines, eachLine => {
                 Parallel.ForEach(keys, eachKey =>
@@ -25,37 +26,76 @@ namespace OpticalCharacterRecognition.Api
             return line;
         }
         
-        private static string GetValue(this IronOcr.OcrResult.Line[] lines, string[] keys, int type = 0)
+        private static string GetDown(this OcrResult.Line line, OcrResult.Word keyWord)
         {
-            IronOcr.OcrResult.Line next = null;
-            string result = null;
-            int index = 0, start = 0;
+            if (line != null)
+            {
+                var xRange = Enumerable.Range(keyWord.X - 4, 4).ToList();
+                xRange.AddRange(Enumerable.Range(keyWord.X, 5));
+                var valWord = line.Block.Words
+                    .FirstOrDefault(fod => xRange.Contains(fod.X) && fod.Y > keyWord.Y);
+                return valWord.Text;
+            }
+            return null;
+        }
+        
+        private static string GetValue(this OcrResult.Line[] lines, string[] keys, bool isAmount = false)
+        {
+            OcrResult.Word startWord = null, endWord = null, nextWord = null;
+            OcrResult.Line line = null;
+            string firstWord = null, lastWord = null, key = null;
+            int start = 0;
 
-            var line = lines.GetLine(keys, out string key);
+            Parallel.ForEach(lines, eachLine => {
+                Parallel.ForEach(keys, eachKey =>
+                {
+                    if (eachLine.Text.ToLowerInvariant().Contains(eachKey))
+                    {
+                        key = eachKey;
+                        line = eachLine;
+                    }
+                });
+            });
 
             if (line != null)
             {
-                start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
-                if (type == 1)
-                    start = line.Text.LastIndexOfAny(new char[] { ' ' });
-                result = line.Text.Substring(start).Trim();
-                
-                if (string.IsNullOrEmpty(result))
+                if (isAmount)
                 {
-                    index = Array.IndexOf(lines, line);
-                    next = lines[index + 1];
-                    start = next.Text.LastIndexOfAny(new char[] { ' ' });
-                    start = start > 0 ? start : 0;
-                    return next.Text.Substring(start);
+                    start = line.Text.LastIndexOfAny(new char[] { ' ' });
+                    return line.Text.Substring(start).Trim();
                 }
-                
-                return result;
+
+                var blocks = key.Split(" ");
+                if (blocks.Length > 1)
+                {
+                    firstWord = blocks.FirstOrDefault();
+                    lastWord = blocks.LastOrDefault();
+                    startWord = line.Words.FirstOrDefault(fod => fod.Text.ToLowerInvariant() == firstWord);
+                    endWord = line.Words.FirstOrDefault(fod => fod.X > startWord.X
+                        && fod.Text.ToLowerInvariant().Contains(lastWord));
+                    nextWord = line.Words.FirstOrDefault(fod => fod.X > endWord.X);
+                }
+                else
+                {
+                    endWord = line.Words.FirstOrDefault(fod => fod.Text.ToLowerInvariant() == key);
+                    nextWord = line.Words.FirstOrDefault(fod => fod.X > endWord.X);
+                }
+
+                if (nextWord == null)
+                    return line.GetDown(startWord);
+
+                var gapX = nextWord.X - (endWord.X + endWord.Width);
+                if (gapX > 3)
+                    return line.GetDown(startWord);
+
+                start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
+                return line.Text.Substring(start).Trim();
             }
 
             return null;
         }
 
-        public static string GetBLNumber(this IronOcr.OcrResult.Line[] lines)
+        public static string GetBLNumber(this OcrResult.Line[] lines)
         {
             var keys = new string[] {
                 //"no:",
@@ -69,34 +109,20 @@ namespace OpticalCharacterRecognition.Api
             return lines.GetValue(keys);
         }
 
-        public static string GetAmount(this IronOcr.OcrResult.Line[] lines)
+        public static string GetAmount(this OcrResult.Line[] lines)
         {
             var keys = new string[]{
                 "total"
             };
-            return lines.GetValue(keys, 1);
+            return lines.GetValue(keys, true);
         }
 
-        public static string GetDONumber(this IronOcr.OcrResult.Line[] lines)
+        public static string GetDONumber(this OcrResult.Line[] lines)
         {
             var keys = new string[]{
                 "invoice number"
             };
-
-            var line = lines.GetLine(keys, out string key);
-
-            if (line != null)
-            {
-                var keyWord = line.Words
-                    .FirstOrDefault(fod => fod.Text.ToLowerInvariant() == "invoice");
-                var xRange = Enumerable.Range(keyWord.X - 4, 4).ToList();
-                xRange.AddRange(Enumerable.Range(keyWord.X, 5));
-                var valWord = line.Block.Words
-                    .FirstOrDefault(fod => xRange.Contains(fod.X) && fod.Y > keyWord.Y);
-                return valWord.Text;
-            }
-
-            return null;
+            return lines.GetValue(keys);
         }
     }
 }
