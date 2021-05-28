@@ -1,5 +1,4 @@
-﻿using Google.Cloud.Vision.V1;
-using IronOcr;
+﻿using IronOcr;
 using Microsoft.AspNetCore.Http;
 using OpticalCharacterRecognition.Api.Models;
 using System.Threading.Tasks;
@@ -8,21 +7,6 @@ namespace OpticalCharacterRecognition.Api.Services
 {
     public class RecognitionService
     {
-        public async Task<string> Vision(IFormFile file)
-        {
-            var path = System.IO.Path.Combine(System.Environment.CurrentDirectory, "key.json");
-            var client = new ImageAnnotatorClientBuilder
-            {
-                CredentialsPath = path
-            }.Build();
-            var source = Image.FromStream(file.OpenReadStream());
-            var text = await client.DetectDocumentTextAsync(source);
-
-            var one = text.Pages[0].Blocks[0].Paragraphs[0].Words[0].Symbols[0].Text;
-            
-            return text.Text;
-        }
-
         public async Task<BillModel> ReadBL(IFormFile file)
         {
             var tesseract = new IronTesseract();
