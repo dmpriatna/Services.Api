@@ -64,6 +64,48 @@ namespace OpticalCharacterRecognition.Api.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ReadBLUrl(string url)
+        {
+            try
+            {
+                var result = await RS.ReadBL(url);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReadDOUrl(string url)
+        {
+            try
+            {
+                var result = await RS.ReadDO(url);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReadAmountUrl(string url)
+        {
+            try
+            {
+                var result = await RS.ReadAmount(url);
+                return Ok(result);
+            }
+            catch (System.Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost]
         public IActionResult SendMail([FromBody] Models.EmailModel model)
         {
             try
