@@ -12,14 +12,24 @@ namespace OpticalCharacterRecognition.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            IronOcr.Installation.LicenseKey = "";
+            IronOcr.Installation.LicenseKey = "IRONOCR.AFIDKURNIAWAN.26866-547E8FE2DB-CXNB7Y-FCNRXJNPYATL-2TX5NXN2C25F-YU6NAKAIWFIM-KJLVSQCNLEJ4-2P7HPUK5LDQV-IU6CEO-TF64ZJVSJ4KAEA-DEPLOYMENT.TRIAL-DWADH5.TRIAL.EXPIRES.24.JUN.2021";
         }
 
         public IConfiguration Configuration { get; }
 
+        private string CorsPolicy => "AllowAny";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy(CorsPolicy, pol => pol
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowAnyOrigin());
+            });
+            
             services.AddControllers();
 
             services.AddSwaggerGen(opt => opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Services.Api", Version = "v1" }));
@@ -40,6 +50,8 @@ namespace OpticalCharacterRecognition.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(CorsPolicy);
 
             app.UseAuthorization();
 
