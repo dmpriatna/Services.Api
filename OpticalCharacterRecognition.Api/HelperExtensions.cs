@@ -26,15 +26,13 @@ namespace OpticalCharacterRecognition.Api
             return line;
         }
         
-        private static string GetDown(this OcrResult.Line line, OcrResult.Word keyWord)
+        private static string GetDown(this OcrResult.Line line, OcrResult.Word keyWord, int treshould = 10)
         {
             if (line != null)
             {
-                var xRange = Enumerable.Range(keyWord.X - 4, 4).ToList();
-                xRange.AddRange(Enumerable.Range(keyWord.X, 5));
-                var valWord = line.Block.Words
-                    .FirstOrDefault(fod => xRange.Contains(fod.X) && fod.Y > keyWord.Y);
-                return valWord.Text;
+                var valWord = Array.Find(line.Block.Words, f =>
+                    f.Y > keyWord.Y && f.X > keyWord.X - treshould);
+                return valWord?.Text;
             }
             return null;
         }
@@ -68,17 +66,17 @@ namespace OpticalCharacterRecognition.Api
                 var blocks = key.Split(" ");
                 if (blocks.Length > 1)
                 {
-                    firstWord = blocks.FirstOrDefault();
-                    lastWord = blocks.LastOrDefault();
-                    startWord = line.Words.FirstOrDefault(fod => fod.Text.ToLowerInvariant() == firstWord);
-                    endWord = line.Words.FirstOrDefault(fod => fod.X > startWord.X
-                        && fod.Text.ToLowerInvariant().Contains(lastWord));
-                    nextWord = line.Words.FirstOrDefault(fod => fod.X > endWord.X);
+                    firstWord = blocks[0];
+                    lastWord = blocks[blocks.Length - 1];
+                    startWord = Array.Find(line.Words, f => f.Text.ToLowerInvariant() == firstWord);
+                    endWord = Array.Find(line.Words, f => f.X > startWord.X
+                        && f.Text.ToLowerInvariant().Contains(lastWord));
+                    nextWord = Array.Find(line.Words, f => f.X > endWord.X);
                 }
                 else
                 {
-                    endWord = line.Words.FirstOrDefault(fod => fod.Text.ToLowerInvariant() == key);
-                    nextWord = line.Words.FirstOrDefault(fod => fod.X > endWord.X);
+                    endWord = Array.Find(line.Words, f => f.Text.ToLowerInvariant() == key);
+                    nextWord = Array.Find(line.Words, f => f.X > endWord.X);
                 }
 
                 if (nextWord == null)
@@ -104,7 +102,8 @@ namespace OpticalCharacterRecognition.Api
                 "b/l no.:",
                 "b.l. no.",
                 "bill of lading no.",
-                "bill of lading no.:"
+                "bill of lading no.:",
+                "seawaybill no."
             };
             return lines.GetValue(keys);
         }
