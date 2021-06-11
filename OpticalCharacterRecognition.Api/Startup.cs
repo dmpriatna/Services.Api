@@ -28,7 +28,6 @@ namespace OpticalCharacterRecognition.Api
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowAnyOrigin()
-                    .AllowCredentials()
                     .Build());
             });
             
@@ -63,7 +62,6 @@ namespace OpticalCharacterRecognition.Api
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowAnyOrigin()
-                .AllowCredentials()
                 .Build());
 
             app.UseAuthorization();
