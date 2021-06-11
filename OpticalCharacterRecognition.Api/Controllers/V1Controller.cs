@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
 
         private Services.StorageService SS { get; }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public async Task<IActionResult> ReadBL(IFormFile file)
         {
@@ -35,6 +37,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public async Task<IActionResult> ReadDO(IFormFile file)
         {
@@ -49,6 +52,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public async Task<IActionResult> ReadAmount(IFormFile file)
         {
@@ -63,6 +67,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public async Task<IActionResult> ReadBLUrl(string url)
         {
@@ -77,6 +82,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public async Task<IActionResult> ReadDOUrl(string url)
         {
@@ -91,6 +97,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public async Task<IActionResult> ReadAmountUrl(string url)
         {
@@ -105,6 +112,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public IActionResult SendMail([FromBody] Models.EmailModel model)
         {
@@ -119,6 +127,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpPost]
         public IActionResult UploadFile(IFormFile file)
         {
@@ -133,6 +142,7 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
 
+        [EnableCors(Startup.CorsPolicy)]
         [HttpGet]
         public IActionResult DownloadFile(string fileName)
         {

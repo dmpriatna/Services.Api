@@ -17,7 +17,7 @@ namespace OpticalCharacterRecognition.Api
 
         public IConfiguration Configuration { get; }
 
-        private string CorsPolicy => "AllowAny";
+        public const string CorsPolicy = "AllowAny";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -25,14 +25,21 @@ namespace OpticalCharacterRecognition.Api
             services.AddCors(opt =>
             {
                 opt.AddPolicy(CorsPolicy, pol => pol
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowAnyOrigin());
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials()
+                    .Build());
             });
             
             services.AddControllers();
 
-            services.AddSwaggerGen(opt => opt.SwaggerDoc("v1", new OpenApiInfo { Title = "Services.Api", Version = "v1" }));
+            services.AddSwaggerGen(opt => opt
+                .SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Services.Api",
+                    Version = "v1"
+                }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,13 +52,19 @@ namespace OpticalCharacterRecognition.Api
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Services.Api v1"));
+            app.UseSwaggerUI(opt => opt
+                .SwaggerEndpoint("/swagger/v1/swagger.json", "Services.Api v1"));
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseCors(CorsPolicy);
+            app.UseCors(opt => opt
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowAnyOrigin()
+                .AllowCredentials()
+                .Build());
 
             app.UseAuthorization();
 
