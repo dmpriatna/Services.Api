@@ -30,8 +30,10 @@ namespace OpticalCharacterRecognition.Api
         {
             if (line != null)
             {
-                var valWord = Array.Find(line.Block.Words, f =>
-                    f.Y > keyWord.Y && f.X > keyWord.X - treshould);
+                var nextLine = Array.FindAll(line.Block.Words, f =>
+                    f.Y > keyWord.Y + keyWord.Height);
+                var valWord = Array.Find(nextLine, f =>
+                    f.X > keyWord.X - treshould);
                 return valWord?.Text;
             }
             return null;
