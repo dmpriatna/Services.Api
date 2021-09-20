@@ -142,7 +142,7 @@ namespace OpticalCharacterRecognition.Api.Services
                             model.Currency = "IDR";
                         else if (sign == ".")
                             model.Currency = "USD";
-                        model.Amount = result.GetAmount();
+                        model.Amount = value;
                     }
                 }
                 return model;
