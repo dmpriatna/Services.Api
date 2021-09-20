@@ -9,6 +9,9 @@ namespace OpticalCharacterRecognition.Api.Services
     {
         public async Task<BillModel> ReadBL(IFormFile file)
         {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
             var tesseract = new IronTesseract();
             var model = new BillModel();
             try
@@ -17,7 +20,7 @@ namespace OpticalCharacterRecognition.Api.Services
                 {
                     input.AddPdfPage(file.OpenReadStream(), 0);
                     var result = await tesseract.ReadAsync(input);
-                    model.BLNumber = result.Lines.GetBLNumber();
+                    model.BLNumber = result.GetBLNumber();
                 }
                 return model;
             }
@@ -29,6 +32,9 @@ namespace OpticalCharacterRecognition.Api.Services
 
         public async Task<BillModel> ReadBL(string url)
         {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
             var client = new System.Net.Http.HttpClient();
             var tesseract = new IronTesseract();
             var input = new OcrInput();
@@ -42,7 +48,7 @@ namespace OpticalCharacterRecognition.Api.Services
 
                 return new BillModel
                 {
-                    BLNumber = result.Lines.GetBLNumber()
+                    BLNumber = result.GetBLNumber()
                 };
             }
             catch(System.Exception e)
@@ -58,6 +64,9 @@ namespace OpticalCharacterRecognition.Api.Services
 
         public async Task<DeliveryModel> ReadDO(IFormFile file)
         {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
             var tesseract = new IronTesseract();
             var model = new DeliveryModel();
             try
@@ -66,8 +75,8 @@ namespace OpticalCharacterRecognition.Api.Services
                 {
                     input.AddPdfPage(file.OpenReadStream(), 0);
                     var result = await tesseract.ReadAsync(input);
-                    model.DONumber = result.Lines.GetDONumber();
-                    model.BLNumber = result.Lines.GetBLNumber();
+                    model.DONumber = result.GetDONumber();
+                    model.BLNumber = result.GetBLNumber();
                 }
                 return model;
             }
@@ -79,6 +88,9 @@ namespace OpticalCharacterRecognition.Api.Services
 
         public async Task<DeliveryModel> ReadDO(string url)
         {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
             var client = new System.Net.Http.HttpClient();
             var tesseract = new IronTesseract();
             var input = new OcrInput();
@@ -92,8 +104,8 @@ namespace OpticalCharacterRecognition.Api.Services
 
                 return new DeliveryModel
                 {
-                    BLNumber = result.Lines.GetBLNumber(),
-                    DONumber = result.Lines.GetDONumber()
+                    BLNumber = result.GetBLNumber(),
+                    DONumber = result.GetDONumber()
                 };
             }
             catch(System.Exception e)
@@ -109,6 +121,9 @@ namespace OpticalCharacterRecognition.Api.Services
 
         public async Task<AmountModel> ReadAmount(IFormFile file)
         {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
             var tesseract = new IronTesseract();
             var model = new AmountModel();
             try
@@ -120,14 +135,14 @@ namespace OpticalCharacterRecognition.Api.Services
                         var page = inputPage.PageCount();
                         input.AddPdfPage(file.OpenReadStream(), page - 1);
                         var result = await tesseract.ReadAsync(input);
-                        var value = result.Lines.GetAmount();
+                        var value = result.GetAmount();
                         if (value == null) return model;
                         string sign = value.Substring(value.Length - 3, 1);
                         if (sign == ",")
                             model.Currency = "IDR";
                         else if (sign == ".")
                             model.Currency = "USD";
-                        model.Amount = result.Lines.GetAmount();
+                        model.Amount = result.GetAmount();
                     }
                 }
                 return model;
@@ -140,6 +155,9 @@ namespace OpticalCharacterRecognition.Api.Services
 
         public async Task<AmountModel> ReadAmount(string url)
         {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
             var client = new System.Net.Http.HttpClient();
             var tesseract = new IronTesseract();
             var model = new AmountModel();
@@ -154,14 +172,14 @@ namespace OpticalCharacterRecognition.Api.Services
                         var page = inputPage.PageCount();
                         input.AddPdfPage(stream, page - 1);
                         var result = await tesseract.ReadAsync(input);
-                        var value = result.Lines.GetAmount();
+                        var value = result.GetAmount();
                         if (value == null) return model;
                         string sign = value.Substring(value.Length - 3, 1);
                         if (sign == ",")
                             model.Currency = "IDR";
                         else if (sign == ".")
                             model.Currency = "USD";
-                        model.Amount = result.Lines.GetAmount();
+                        model.Amount = result.GetAmount();
                     }
                 }
                 return model;

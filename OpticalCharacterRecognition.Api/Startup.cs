@@ -51,8 +51,11 @@ namespace OpticalCharacterRecognition.Api
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(opt => opt
-                .SwaggerEndpoint("/swagger/v1/swagger.json", "Services.Api v1"));
+            app.UseSwaggerUI(opt => 
+            {
+                opt.RoutePrefix = "";
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Services.Api v1");
+            });
 
             app.UseHttpsRedirection();
 
