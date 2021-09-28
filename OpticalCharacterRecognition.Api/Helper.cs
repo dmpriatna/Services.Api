@@ -186,7 +186,7 @@ namespace OpticalCharacterRecognition.Api
             OcrResult.Word startWord = null, endWord = null, nextWord = null;
             OcrResult.Line line = null;
             string firstWord = null, lastWord = null, key = null;
-            int start = 0;
+            int start = 0, end = 0;
 
             line = Array.Find(source.Lines, l =>
             {
@@ -222,11 +222,14 @@ namespace OpticalCharacterRecognition.Api
                 if (nextWord == null)
                     return source.GetDown(startWord);
 
-                var gapX = nextWord.X - (endWord.X + endWord.Width);
-                if (gapX > 3)
-                    return source.GetDown(startWord);
+                // var gapX = nextWord.X - (endWord.X + endWord.Width);
+                // if (gapX > 3)
+                //     return source.GetDown(startWord);
 
                 start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
+                var obs = line.Text.IndexOf("|");
+                if (obs > 0)
+                    return line.Text.Substring(start, obs - start).Trim();
                 return line.Text.Substring(start).Trim();
             }
 
