@@ -12,7 +12,7 @@ namespace OpticalCharacterRecognition.Api.Models
         public string Amount { get; set; }
     }
 
-    public class AmountModel
+    public class AmountModel : BillModel
     {
         public string Amount { get; set; }
         public string Currency { get; set; }

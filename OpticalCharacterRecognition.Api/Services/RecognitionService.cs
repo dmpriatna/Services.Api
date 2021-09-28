@@ -143,6 +143,7 @@ namespace OpticalCharacterRecognition.Api.Services
                         else if (sign == ".")
                             model.Currency = "USD";
                         model.Amount = value;
+                        model.BLNumber = result.GetBLNumber();
                     }
                 }
                 return model;
@@ -179,7 +180,8 @@ namespace OpticalCharacterRecognition.Api.Services
                             model.Currency = "IDR";
                         else if (sign == ".")
                             model.Currency = "USD";
-                        model.Amount = result.GetAmount();
+                        model.Amount = value;
+                        model.BLNumber = result.GetBLNumber();
                     }
                 }
                 return model;
