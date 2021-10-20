@@ -186,7 +186,7 @@ namespace OpticalCharacterRecognition.Api
             OcrResult.Word startWord = null, endWord = null, nextWord = null;
             OcrResult.Line line = null;
             string firstWord = null, lastWord = null, key = null;
-            int start = 0, end = 0;
+            int start = 0;
 
             line = Array.Find(source.Lines, l =>
             {
@@ -243,6 +243,37 @@ namespace OpticalCharacterRecognition.Api
             var valWord = Array.Find(nextLine, f =>
                 f.X > keyWord.X - treshould);
             return valWord?.Text;
+        }
+
+        public static object[] List(this OcrResult source)
+        {
+            var keys = new[] { "serial no", "bale no", "moisture", "gross", "net", "bisfa" };
+            var head = Array.Find(source.Lines, f => 
+            {
+                return Array.Find(keys, k => f.Text.ToLowerInvariant().Contains(k)) != null;
+            });
+
+            var body = Array.FindAll(source.Lines, f => 
+            {
+                return f.Y > head.Y;
+            });
+
+            return body.To();
+        }
+
+        private static object[] To(this OcrResult.Line[] sources)
+        {
+            var result = new List<object>();
+            foreach (var line in sources)
+            {
+                var inResult = new List<string>();
+                foreach (var item in line.Words)
+                {
+                    inResult.Add(item.Text);
+                }
+                result.Add(inResult);
+            }
+            return result.ToArray();
         }
     }
 }

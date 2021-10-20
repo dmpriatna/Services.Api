@@ -195,5 +195,27 @@ namespace OpticalCharacterRecognition.Api.Services
                 client.Dispose();
             }
         }
+
+        public async Task<object> Read(IFormFile source)
+        {
+            System.Diagnostics.Debug.WriteLine(null);
+            System.Diagnostics.Debug.WriteLine("".PadRight(100, '*'));
+            System.Diagnostics.Debug.WriteLine($"reading start\t\t{System.DateTime.Now}");
+
+            try
+            {
+                var tesseract = new IronTesseract();
+                using (var input = new OcrInput())
+                {
+                    input.AddPdfPage(source.OpenReadStream(), 0);
+                    var result = await tesseract.ReadAsync(input);
+                    return result.List();
+                }
+            }
+            catch(System.Exception se)
+            {
+                throw se;
+            }
+        }
     }
 }

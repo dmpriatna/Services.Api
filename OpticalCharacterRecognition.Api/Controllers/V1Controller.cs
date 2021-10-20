@@ -157,4 +157,30 @@ namespace OpticalCharacterRecognition.Api.Controllers
             }
         }
     }
+
+    [ApiController]
+    [Route("[controller]/[action]")]
+    public class V2Controller : Controller
+    {
+        public V2Controller()
+        {
+            RS = new Services.RecognitionService();
+        }
+
+        private Services.RecognitionService RS { get; }
+        
+        [HttpPost]
+        public async Task<IActionResult> Read(IFormFile request)
+        {
+            try
+            {
+                var result = await RS.Read(request);
+                return Ok(result);
+            }
+            catch (System.Exception se)
+            {
+                throw se;
+            }
+        }
+    }
 }
