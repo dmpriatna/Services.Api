@@ -11,7 +11,7 @@ namespace OpticalCharacterRecognition.Api.Services
             var path = System.IO.Path.Combine(Environment.CurrentDirectory, "key.json");
             var gc = GoogleCredential.FromFile(path);
 
-            Bucket = "go-logs-304513.appspot.com";
+            Bucket = "go-logs-dev";
             Client = StorageClient.Create(gc);
             Signer = UrlSigner.FromServiceAccountPath(path);
         }
