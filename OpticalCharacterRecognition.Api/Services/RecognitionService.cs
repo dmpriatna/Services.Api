@@ -1,4 +1,4 @@
-﻿using IronOcr;
+using IronOcr;
 using Microsoft.AspNetCore.Http;
 using OpticalCharacterRecognition.Api.Models;
 using System.Threading.Tasks;
@@ -73,7 +73,11 @@ namespace OpticalCharacterRecognition.Api.Services
             {
                 using (var input = new OcrInput())
                 {
-                    input.AddPdfPage(file.OpenReadStream(), 0);
+                    input.AddPdf(file.OpenReadStream());
+                    var pages = input.PageCount();
+                    if (pages > 2)
+                    input.AddPdfPages(file.OpenReadStream(), new[]{0,1});
+                    input.Deskew();
                     var result = await tesseract.ReadAsync(input);
                     model.DONumber = result.GetDONumber();
                     model.BLNumber = result.GetBLNumber();
@@ -99,7 +103,10 @@ namespace OpticalCharacterRecognition.Api.Services
                 var response = await client.GetAsync(url);
                 var stream = await response.Content.ReadAsStreamAsync();
 
-                input.AddPdfPage(stream, 0);
+                input.AddPdf(stream);
+                var pages = input.PageCount();
+                if (pages > 2)
+                input.AddPdfPages(stream, new[]{0,1});
                 var result = await tesseract.ReadAsync(input);
 
                 return new DeliveryModel
