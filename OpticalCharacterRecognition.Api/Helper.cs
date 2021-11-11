@@ -220,14 +220,14 @@ namespace OpticalCharacterRecognition.Api
                     nextWord = Array.Find(line.Words, f => f.X > startWord.X);
                 }
 
-                if (nextWord == null)
+                if (nextWord == null || nextWord.Text.Contains('('))
                     return source.GetDown(startWord);
 
                 if (nextWord.Text == ":")
                     return nextWord.Next(startWord.X);
 
-                if (endWord != null && nextWord.X - (endWord.X + endWord.Width) > 100)
-                    return source.GetDown(startWord);
+                // if (endWord != null && nextWord.X - (endWord.X + endWord.Width) > 100)
+                //     return source.GetDown(startWord);
 
                 return nextWord.Text.Trim().Split(new[]{'|'})[0];
             }
