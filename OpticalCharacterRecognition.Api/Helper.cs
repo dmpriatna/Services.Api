@@ -1,7 +1,8 @@
-﻿using IronOcr;
+using IronOcr;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpticalCharacterRecognition.Api
@@ -44,115 +45,115 @@ namespace OpticalCharacterRecognition.Api
             return _count;
         }
         
-        private static OcrResult.Line GetLine(this OcrResult.Line[] lines, string[] keys, out string key)
-        {
-            OcrResult.Line line = null;
-            string outKey = null;
-            Parallel.ForEach(lines, eachLine => {
-                Parallel.ForEach(keys, eachKey =>
-                {
-                    if (eachLine.Text.ToLowerInvariant().Contains(eachKey))
-                    {
-                        outKey = eachKey;
-                        line = eachLine;
-                    }
-                });
-            });
-            key = outKey;
-            return line;
-        }
+        // private static OcrResult.Line GetLine(this OcrResult.Line[] lines, string[] keys, out string key)
+        // {
+        //     OcrResult.Line line = null;
+        //     string outKey = null;
+        //     Parallel.ForEach(lines, eachLine => {
+        //         Parallel.ForEach(keys, eachKey =>
+        //         {
+        //             if (eachLine.Text.ToLowerInvariant().Contains(eachKey))
+        //             {
+        //                 outKey = eachKey;
+        //                 line = eachLine;
+        //             }
+        //         });
+        //     });
+        //     key = outKey;
+        //     return line;
+        // }
         
-        public static string GetBLNumber(this OcrResult.Line[] lines)
-        {
-            System.Diagnostics.Debug.WriteLine($"IronOcr ready\t\t{System.DateTime.Now}");
-            var keys = Config.GetSection("Keys:Bill")
-                .GetChildren()
-                .ToArray();
-            var result = lines.GetValue(keys);
-            System.Diagnostics.Debug.WriteLine($"get result\t\t{System.DateTime.Now}");
-            return result;
-        }
+        // public static string GetBLNumber(this OcrResult.Line[] lines)
+        // {
+        //     System.Diagnostics.Debug.WriteLine($"IronOcr ready\t\t{System.DateTime.Now}");
+        //     var keys = Config.GetSection("Keys:Bill")
+        //         .GetChildren()
+        //         .ToArray();
+        //     var result = lines.GetValue(keys);
+        //     System.Diagnostics.Debug.WriteLine($"get result\t\t{System.DateTime.Now}");
+        //     return result;
+        // }
 
-        public static string GetAmount(this OcrResult.Line[] lines)
-        {
-            var keys = Config.GetSection("Keys:Amount")
-                .GetChildren()
-                .ToArray();
-            return lines.GetValue(keys, true);
-        }
+        // public static string GetAmount(this OcrResult.Line[] lines)
+        // {
+        //     var keys = Config.GetSection("Keys:Amount")
+        //         .GetChildren()
+        //         .ToArray();
+        //     return lines.GetValue(keys, true);
+        // }
 
-        public static string GetDONumber(this OcrResult.Line[] lines)
-        {
-            var keys = Config.GetSection("Keys:Invoice")
-                .GetChildren()
-                .ToArray();
-            return lines.GetValue(keys);
-        }
+        // public static string GetDONumber(this OcrResult.Line[] lines)
+        // {
+        //     var keys = Config.GetSection("Keys:Invoice")
+        //         .GetChildren()
+        //         .ToArray();
+        //     return lines.GetValue(keys);
+        // }
 
-        private static string GetDown(this OcrResult.Line line, OcrResult.Word keyWord, int treshould = 10)
-        {
-            if (line != null)
-            {
-                var nextLine = Array.FindAll(line.Block.Words, f =>
-                    f.Y > keyWord.Y + keyWord.Height);
-                var valWord = Array.Find(nextLine, f =>
-                    f.X > keyWord.X - treshould);
-                return valWord?.Text;
-            }
-            return null;
-        }
+        // private static string GetDown(this OcrResult.Line line, OcrResult.Word keyWord, int treshould = 10)
+        // {
+        //     if (line != null)
+        //     {
+        //         var nextLine = Array.FindAll(line.Block.Words, f =>
+        //             f.Y > keyWord.Y + keyWord.Height);
+        //         var valWord = Array.Find(nextLine, f =>
+        //             f.X > keyWord.X - treshould);
+        //         return valWord?.Text;
+        //     }
+        //     return null;
+        // }
         
-        private static string GetValue(this OcrResult.Line[] lines, string[] keys, bool isAmount = false)
-        {
-            OcrResult.Word startWord = null, endWord = null, nextWord = null;
-            OcrResult.Line line = null;
-            string firstWord = null, lastWord = null, key = null;
-            int start = 0;
+        // private static string GetValue(this OcrResult.Line[] lines, string[] keys, bool isAmount = false)
+        // {
+        //     OcrResult.Word startWord = null, endWord = null, nextWord = null;
+        //     OcrResult.Line line = null;
+        //     string firstWord = null, lastWord = null, key = null;
+        //     int start = 0;
 
-            line = Array.Find(lines, l =>
-            {
-                key = Array.Find(keys, k => l.Text.ToLowerInvariant().Contains(k));
-                return key != null;
-            });
-            System.Diagnostics.Debug.WriteLine($"key found\t\t{System.DateTime.Now}");
+        //     line = Array.Find(lines, l =>
+        //     {
+        //         key = Array.Find(keys, k => l.Text.ToLowerInvariant().Contains(k));
+        //         return key != null;
+        //     });
+        //     System.Diagnostics.Debug.WriteLine($"key found\t\t{System.DateTime.Now}");
 
-            if (line != null)
-            {
-                if (isAmount)
-                {
-                    start = line.Text.LastIndexOfAny(new char[] { ' ' });
-                    return line.Text.Substring(start).Trim();
-                }
+        //     if (line != null)
+        //     {
+        //         if (isAmount)
+        //         {
+        //             start = line.Text.LastIndexOfAny(new char[] { ' ' });
+        //             return line.Text.Substring(start).Trim();
+        //         }
 
-                var blocks = key.Split(" ");
-                if (blocks.Length > 1)
-                {
-                    firstWord = blocks[0];
-                    lastWord = blocks[blocks.Length - 1];
-                    startWord = Array.Find(line.Words, f => f.Text.ToLowerInvariant() == firstWord);
-                    endWord = Array.Find(line.Words, f => f.X > startWord.X
-                        && f.Text.ToLowerInvariant().Contains(lastWord));
-                    nextWord = Array.Find(line.Words, f => f.X > endWord.X);
-                }
-                else
-                {
-                    endWord = Array.Find(line.Words, f => f.Text.ToLowerInvariant() == key);
-                    nextWord = Array.Find(line.Words, f => f.X > endWord.X);
-                }
+        //         var blocks = key.Split(" ");
+        //         if (blocks.Length > 1)
+        //         {
+        //             firstWord = blocks[0];
+        //             lastWord = blocks[blocks.Length - 1];
+        //             startWord = Array.Find(line.Words, f => f.Text.ToLowerInvariant() == firstWord);
+        //             endWord = Array.Find(line.Words, f => f.X > startWord.X
+        //                 && f.Text.ToLowerInvariant().Contains(lastWord));
+        //             nextWord = Array.Find(line.Words, f => f.X > endWord.X);
+        //         }
+        //         else
+        //         {
+        //             endWord = Array.Find(line.Words, f => f.Text.ToLowerInvariant() == key);
+        //             nextWord = Array.Find(line.Words, f => f.X > endWord.X);
+        //         }
 
-                if (nextWord == null)
-                    return line.GetDown(startWord);
+        //         if (nextWord == null)
+        //             return line.GetDown(startWord);
 
-                var gapX = nextWord.X - (endWord.X + endWord.Width);
-                if (gapX > 3)
-                    return line.GetDown(startWord);
+        //         var gapX = nextWord.X - (endWord.X + endWord.Width);
+        //         if (gapX > 3)
+        //             return line.GetDown(startWord);
 
-                start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
-                return line.Text.Substring(start).Trim();
-            }
+        //         start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
+        //         return line.Text.Substring(start).Trim();
+        //     }
 
-            return null;
-        }
+        //     return null;
+        // }
 
         public static string GetBLNumber(this OcrResult source)
         {
@@ -222,15 +223,13 @@ namespace OpticalCharacterRecognition.Api
                 if (nextWord == null)
                     return source.GetDown(startWord);
 
-                // var gapX = nextWord.X - (endWord.X + endWord.Width);
-                // if (gapX > 3)
-                //     return source.GetDown(startWord);
+                if (nextWord.Text == ":")
+                    return nextWord.Next(startWord.X);
 
-                start = line.Text.ToLowerInvariant().IndexOf(key) + key.Length;
-                var obs = line.Text.IndexOf("|");
-                if (obs > 0)
-                    return line.Text.Substring(start, obs - start).Trim();
-                return line.Text.Substring(start).Trim();
+                if (endWord != null && nextWord.X - (endWord.X + endWord.Width) > 100)
+                    return source.GetDown(startWord);
+
+                return nextWord.Text.Trim().Split(new[]{'|'})[0];
             }
 
             return null;
@@ -238,11 +237,38 @@ namespace OpticalCharacterRecognition.Api
 
         private static string GetDown(this OcrResult source, OcrResult.Word keyWord, int treshould = 10)
         {
-            var nextLine = Array.FindAll(source.Words, f =>
-                f.Y > keyWord.Y + keyWord.Height);
-            var valWord = Array.Find(nextLine, f =>
+            var pos = Array.IndexOf(source.Lines, keyWord.Line) + 1;
+            if (pos < source.Lines.Length)
+            {
+                var nextLine = source.Lines[pos];
+                var valWord = Array.Find(nextLine.Words, f =>
                 f.X > keyWord.X - treshould);
             return valWord?.Text;
+        }
+            return null;
+        }
+
+        private static string Next(this OcrResult.Word source, int treshould)
+        {
+            try
+            {
+                var pos = Array.IndexOf(source.Line.Words, source) + 1;
+                var len = source.Line.Words.Length;
+                if (pos < len)
+                {
+                    var next = source.Line.Words[pos];
+                    return next?.Text;
+                }
+                var range = Enumerable.Range(treshould - 10, treshould + 10);
+                pos = Array.IndexOf(source.Line.Paragraph.Lines, source.Line);
+                var nextLine = source.Line.Paragraph.Lines[pos + 1];
+                var valWord = Array.Find(nextLine.Words, f => range.Contains(f.X));
+                return valWord?.Text;
+            }
+            catch (System.Exception)
+            {
+                return null;
+            }
         }
 
         public static object[] List(this OcrResult source)
